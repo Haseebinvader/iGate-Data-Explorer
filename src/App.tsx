@@ -10,16 +10,14 @@ function App() {
   const { data } = useDataset()
 
   return (
-    <>
-      <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-        <OfflineBanner />
-        <Header data={data || []} mode={mode} />
-        <main className="p-4 space-y-3">
-          <AppRoutes data={data || []} />
-        </main>
-        <BackToTop />
-      </div>
-    </>
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <OfflineBanner />
+      <Header data={data || []} mode={mode} />
+      <main className="p-4 space-y-3">
+        <AppRoutes data={data || []} />
+      </main>
+      <BackToTop />
+    </div>
   )
 }
 

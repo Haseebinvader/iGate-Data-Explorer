@@ -1,18 +1,21 @@
-import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 import { DataTable } from './DataTable'
-import StatsPage from '../pages/Stats'
-import AnalysisWizard from '../pages/AnalysisWizard'
 import type { RoutesProps } from '../lib/Interface'
+
+// Lazy load pages
+const Stats = lazy(() => import('../pages/Stats'))
+const AnalysisWizard = lazy(() => import('../pages/AnalysisWizard'))
 
 const AppRoutes = ({ data }: RoutesProps) => {
     return (
-        <>
+        <Suspense fallback={<div className="p-6">Loading page...</div>}>
             <Routes>
                 <Route path="/" element={<DataTable rows={data ?? []} />} />
-                <Route path="/stats" element={<StatsPage />} />
+                <Route path="/stats" element={<Stats />} />
                 <Route path="/wizard" element={<AnalysisWizard />} />
             </Routes>
-        </>
+        </Suspense>
     )
 }
 
