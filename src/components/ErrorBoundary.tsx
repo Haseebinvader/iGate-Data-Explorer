@@ -1,20 +1,7 @@
 import React from 'react'
+import type { ErrorBoundaryProps, ErrorBoundaryState } from '../lib/Interface'
 
-// Props that ErrorBoundary accepts
-type ErrorBoundaryProps = {
-  // Optional fallback UI to render when an error occurs
-  fallback?: React.ReactNode
-  // Callback when an error is caught
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
-  // Callback when retry button is clicked
-  onRetry?: () => void
-}
 
-// State managed by ErrorBoundary
-type ErrorBoundaryState = {
-  hasError: boolean
-  error: Error | null
-}
 
 export class ErrorBoundary extends React.Component<
   React.PropsWithChildren<ErrorBoundaryProps>, // Component accepts children + custom props

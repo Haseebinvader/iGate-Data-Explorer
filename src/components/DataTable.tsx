@@ -1,12 +1,11 @@
 import { useRef, useState, useEffect } from 'react'
-import { type RecordItem } from '../hooks/useDataset'
 import { useResourceTracker } from '../hooks/useResourceTracker'
-import { useRecordFilters, type RecordSortKey } from '../hooks/useRecordFilters'
+import { useRecordFilters} from '../hooks/useRecordFilters'
 import { Ascending, Descending } from './IoncsSvg'
+import type { DataTableProps, SortKey } from '../lib/Interface'
 
-type SortKey = RecordSortKey
 
-export function DataTable({ rows }: { rows: RecordItem[] }) {
+export function DataTable({ rows }:DataTableProps) {
   // Filtering + sorting state and utilities (custom hook)
   const {
     query,

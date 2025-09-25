@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 import { useAppDispatch } from '../store'
 import { exportCSV, exportJSON } from '../lib/exports'
 import { toggleTheme } from '../store/slices/themeSlice'
-import type { RecordItem } from '../hooks/useDataset'
+import type { HeaderProps } from '../lib/Interface'
 
-const Header = ({data, mode}: {data: RecordItem[], mode: string}) => {
+const Header = ({data, mode}: HeaderProps) => {
   const dispatch = useAppDispatch()
 
   return (
