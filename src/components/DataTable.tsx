@@ -1,11 +1,12 @@
 import { useRef, useState, useEffect } from 'react'
+import { type RecordItem } from '../hooks/useDataset'
 import { useResourceTracker } from '../hooks/useResourceTracker'
-import { useRecordFilters} from '../hooks/useRecordFilters'
+import { useRecordFilters, type RecordSortKey } from '../hooks/useRecordFilters'
 import { Ascending, Descending } from './IoncsSvg'
-import type { DataTableProps, SortKey } from '../lib/Interface'
 
+type SortKey = RecordSortKey
 
-export function DataTable({ rows }:DataTableProps) {
+export function DataTable({ rows }: { rows: RecordItem[] }) {
   // Filtering + sorting state and utilities (custom hook)
   const {
     query,
@@ -198,40 +199,56 @@ export function DataTable({ rows }:DataTableProps) {
 
           {/* Table Body */}
           <tbody>
-  {filtered.length === 0 && (
-    <tr>
-      <td colSpan={columnOrder.length} className="p-4 text-center text-sm">
-        No results found.
-      </td>
-    </tr>
-  )}
+            {/* Empty state */}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={columnOrder.length} className="p-4 text-center text-sm">No results found.</td>
+              </tr>
+            )}
 
-  {visibleRows.map(row => (
-    <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-      {columnOrder.map(col => (
-        <td
-          key={col}
-          className={`px-2 py-3 border-b dark:border-gray-700 ${
-            col === 'image' ? 'sticky left-0 bg-white dark:bg-gray-950' : ''
-          }`}
-        >
-          {col === 'image' ? (
-            <img
-              src={row.image}
-              alt={row.name}
-              loading="lazy"
-              width={40}
-              height={40}
-              className="rounded"
-            />
-          ) : (
-            String(row[col])
-          )}
-        </td>
-      ))}
-    </tr>
-  ))}
-</tbody>
+            {/* Virtualized rows (render only visible subset) */}
+            {filtered.length > 0 && (
+              <>
+                {/* Spacer row for virtualization offset */}
+                {offsetY > 0 && (
+                  <tr style={{ height: offsetY }}>
+                    <td colSpan={columnOrder.length} style={{ padding: 0, border: "none" }} />
+                  </tr>
+                )}
+                {visibleRows.map(row => (
+                  <tr key={row.id} style={{ height: rowHeight }}>
+                    {columnOrder.map(col => {
+                      if (col === 'image') {
+                        return (
+                          <td
+                            key="image"
+                            className="px-2 sticky left-0 bg-white dark:bg-gray-950"
+                            style={{ width: 60, minWidth: 60, maxWidth: 60 }}
+                          >
+                            <img
+                              src={row.image}
+                              alt={row.name}
+                              loading="lazy"
+                              width={40}
+                              height={40}
+                              className="rounded"
+                            />
+                          </td>
+                        )
+                      }
+                      return <td key={col} className="px-2">{String(row[col])}</td>
+                    })}
+                  </tr>
+                ))}
+                {/* Spacer row for virtualization bottom */}
+                {totalHeight - offsetY - visibleRows.length * rowHeight > 0 && (
+                  <tr style={{ height: totalHeight - offsetY - visibleRows.length * rowHeight }}>
+                    <td colSpan={columnOrder.length} style={{ padding: 0, border: "none" }} />
+                  </tr>
+                )}
+              </>
+            )}
+          </tbody>
 
         </table>
       </div>
