@@ -23,7 +23,7 @@ async function fetchDataset(): Promise<RecordItem[]> {
   const res = await fetch('/api/latestblock')
   if (!res.ok) throw new Error('Failed to load dataset')
 
-  // Example API response shape
+  // API response shape
   const raw = await res.json() as {
     hash: string
     time: number
@@ -53,15 +53,6 @@ async function fetchDataset(): Promise<RecordItem[]> {
     rating: i % 6,                           // cycle 0–5
     image: `https://picsum.photos/seed/${base.name}-${i}/80/80`, // unique seed
   }))
-
-  // 5. Simulate a large dataset (ensure at least 10,000 items)
-  if (out.length < 10000) {
-    const factor = Math.ceil(10000 / out.length)
-    out = Array.from({ length: factor * out.length }, (_, i) => ({
-      ...out[i % out.length],
-      id: i + 1, // reassign unique IDs
-    }))
-  }
 
   // 6. Cache the transformed dataset for offline/next-time use
   await setCached(CACHE_KEY, out)

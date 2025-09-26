@@ -10,6 +10,30 @@ export interface DataTableProps {
   rows: RecordItem[]
 }
 
+export interface DataTableResourceWarningProps {
+  tracker: {
+    warning?: string
+    memoryMB?: number
+  }
+}
+
+export interface DataTableFiltersProps {
+  query: string
+  setQuery: (q: string) => void
+  category: string
+  setCategory: (c: string) => void
+  categories: string[]
+  resultCount: number
+}
+
+export interface DataTablePaginationProps {
+  page: number
+  setPage: React.Dispatch<React.SetStateAction<number>>
+  pageSize: number
+  setPageSize: (n: number) => void
+  totalPages: number
+}
+
 export interface RoutesProps {
   data: RecordItem[]
 }
