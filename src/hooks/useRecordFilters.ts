@@ -2,39 +2,71 @@ import { useMemo, useState } from 'react'
 import { useDebounce } from './useDebounce'
 import { type RecordItem } from './useDataset'
 
-// Define which fields we can sort by (name, category, year, rating)
-export type RecordSortKey = keyof Pick<RecordItem, 'name' | 'category' | 'year' | 'rating'>
+// ---------------------------------------------
+// RecordSortKey
+// ---------------------------------------------
+// Defines the allowed sort keys. We only allow
+// sorting by these specific fields of RecordItem.
+export type RecordSortKey = keyof Pick<
+  RecordItem,
+  'name' | 'category' | 'year' | 'rating'
+>
 
+/**
+ * ----------------------------------------------------
+ * useRecordFilters Hook
+ * ----------------------------------------------------
+ * Provides filtering and sorting logic for a dataset.
+ *
+ * Features:
+ * - Search by name (debounced for performance)
+ * - Filter by category
+ * - Sort by field (name, category, year, rating)
+ * - Toggle ascending/descending sort
+ */
 export function useRecordFilters(rows: RecordItem[]) {
-  // State variables for search query, selected category, sort key, and sort direction
-  const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('')
-  const [sortKey, setSortKey] = useState<RecordSortKey>('name')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  // --------------------------------
+  // State: Search, Category, Sorting
+  // --------------------------------
+  const [query, setQuery] = useState('')                            // search string
+  const [category, setCategory] = useState('')                      // active category filter
+  const [sortKey, setSortKey] = useState<RecordSortKey>('name')     // active sort column
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')     // sort direction
 
-  // Debounce the search query to avoid unnecessary re-renders
+  // --------------------------------
+  // Debounced Query
+  // --------------------------------
+  // Wait 300ms after typing before applying search,
+  // prevents filtering on every keystroke
   const debouncedQuery = useDebounce(query, 300)
 
-  // Get the unique categories from the rows, for filtering purposes
+  // --------------------------------
+  // Categories List
+  // --------------------------------
+  // Extract unique categories from dataset.
+  // Used for the <select> filter dropdown.
   const categories = useMemo(() => {
     return [...new Set(rows.map(row => row.category))].sort()
   }, [rows])
 
-  // Filter and sort rows based on the selected filters (query, category, sorting)
+  // --------------------------------
+  // Filter + Sort Logic
+  // --------------------------------
   const filtered = useMemo(() => {
-    // Step 1: Apply query filter (search by name)
+    // Step 1: Apply search filter
     const searchQuery = debouncedQuery.trim().toLowerCase()
     const filteredRows = rows.filter(row => {
-      const matchesQuery = !searchQuery || row.name.toLowerCase().includes(searchQuery)
+      const matchesQuery =
+        !searchQuery || row.name.toLowerCase().includes(searchQuery)
       const matchesCategory = !category || row.category === category
       return matchesQuery && matchesCategory
     })
 
-    // Step 2: Sort the filtered rows based on the selected sort key and direction
+    // Step 2: Sort results
     const sortedRows = [...filteredRows].sort((a, b) => {
       const valueA = a[sortKey]
       const valueB = b[sortKey]
-      
+
       if (valueA < valueB) return sortDir === 'asc' ? -1 : 1
       if (valueA > valueB) return sortDir === 'asc' ? 1 : -1
       return 0
@@ -43,20 +75,26 @@ export function useRecordFilters(rows: RecordItem[]) {
     return sortedRows
   }, [rows, debouncedQuery, sortKey, sortDir, category])
 
-  // Function to handle sorting when the user will click column to sort by
+  // --------------------------------
+  // Sorting Handler
+  // --------------------------------
+  // Called when a column header is clicked
   const onSort = (key: RecordSortKey) => {
     if (key === sortKey) {
-      // If already sorting by this key, toggle the direction
+      // If already sorting by this key → toggle direction
       setSortDir(prevDir => (prevDir === 'asc' ? 'desc' : 'asc'))
     } else {
-      // If sorting by a new key, set the new key and default to ascending
+      // If switching to new key → reset to ascending
       setSortKey(key)
       setSortDir('asc')
     }
   }
 
+  // --------------------------------
+  // Return Hook API
+  // --------------------------------
   return {
-    // State values
+    // State values (for UI inputs)
     query,
     setQuery,
     category,
@@ -66,11 +104,11 @@ export function useRecordFilters(rows: RecordItem[]) {
     setSortKey,
     setSortDir,
 
-    // Derived values (calculated based on filters)
+    // Derived values (computed from rows + filters)
     categories,
     filtered,
 
-    // Sorting action
+    // Actions
     onSort,
   }
 }

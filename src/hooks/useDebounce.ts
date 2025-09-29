@@ -1,19 +1,45 @@
 import { useEffect, useState } from 'react'
 
-// A custom hook that delays updating a value until after a given delay
+/**
+ * ----------------------------------------------------
+ * useDebounce Hook
+ * ----------------------------------------------------
+ * Returns a "debounced" version of a value.
+ *
+ * - Useful for search inputs, filters, or any situation
+ *   where you want to wait until the user stops typing
+ *   before performing an expensive action (e.g., API call).
+ *
+ * Example:
+ * const debouncedQuery = useDebounce(query, 500)
+ * // debouncedQuery only updates 500ms after user stops typing
+ */
 export function useDebounce<T>(value: T, delayMs = 300): T {
-  // State to store the debounced value
+  // --------------------------------
+  // State to hold the debounced value
+  // --------------------------------
+  // - Starts with the current value
+  // - Will only update after the timer completes
   const [debounced, setDebounced] = useState(value)
 
   useEffect(() => {
-    // Set up a timer that updates debounced value after delayMs
+    // --------------------------------
+    // Start debounce timer
+    // --------------------------------
+    // - After `delayMs`, update debounced state to latest value
     const id = setTimeout(() => setDebounced(value), delayMs)
 
-    // Cleanup function: clears the timer if value/delay changes
-    // Prevents updating too often when user keeps typing/changing value
+    // --------------------------------
+    // Cleanup on value/delay change
+    // --------------------------------
+    // - Clears previous timer if user types again quickly
+    // - Ensures only the last change after the delay updates state
     return () => clearTimeout(id)
-  }, [value, delayMs]) // Re-run effect whenever input value or delay changes
+  }, [value, delayMs]) // Effect re-runs whenever input value or delay changes
 
-  // Return the debounced value (lags behind the input value by delayMs)
+  // --------------------------------
+  // Return the debounced value
+  // --------------------------------
+  // - Will "lag" behind the input value by `delayMs` ms
   return debounced
 }

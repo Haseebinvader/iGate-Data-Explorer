@@ -1,7 +1,12 @@
 import localforage from 'localforage'
 
-// Configure localforage storage
-// - `name`: database name (like a project namespace)
+// ----------------------------------------------------
+// LocalForage Configuration
+// ----------------------------------------------------
+// LocalForage is a wrapper around IndexedDB (with fallbacks
+// to WebSQL and localStorage) that provides async storage.
+//
+// - `name`: database namespace (like a project DB name)
 // - `storeName`: object store (like a table in IndexedDB)
 localforage.config({
   name: 'data-explorer',
@@ -9,32 +14,51 @@ localforage.config({
 })
 
 /**
- * Get a cached value from localforage
- * @param key - the key under which the value is stored
- * @returns the value if found, or null if not found / error
+ * ----------------------------------------------------
+ * getCached
+ * ----------------------------------------------------
+ * Retrieve a cached value from localforage.
+ *
+ * @param key - string key to lookup
+ * @returns Promise<T | null> → parsed value or null if not found
+ *
+ * Notes:
+ * - Generic <T> allows strong typing of returned value
+ * - Returns `null` if value does not exist or on error
  */
 export async function getCached<T>(key: string): Promise<T | null> {
   try {
-    // Try to retrieve the item by key
+    // Try to fetch the item by key
     const value = await localforage.getItem<T>(key)
-    // Return the value if it exists, otherwise null
+
+    // Explicitly coerce undefined → null
     return value ?? null
   } catch {
-    // If any error happens (e.g. storage issue), return null
+    // If retrieval fails (corrupt DB, quota errors, etc.)
+    // Return null safely (fail silently)
     return null
   }
 }
 
 /**
- * Store a value in localforage
- * @param key - the key to store under
- * @param value - the value to store (can be object, array, string, etc.)
+ * ----------------------------------------------------
+ * setCached
+ * ----------------------------------------------------
+ * Store a value in localforage under a given key.
+ *
+ * @param key - string key to store under
+ * @param value - any serializable value (object, array, string, etc.)
+ * @returns Promise<void>
+ *
+ * Notes:
+ * - Data is persisted in IndexedDB when available
+ * - Silently ignores errors (e.g., quota exceeded)
  */
 export async function setCached<T>(key: string, value: T): Promise<void> {
   try {
-    // Save the value under the given key
+    // Save item in async storage
     await localforage.setItem<T>(key, value)
   } catch {
-    // If saving fails (e.g. quota exceeded), ignore silently
+    // Ignore errors (do not throw, to avoid breaking app flow)
   }
 }

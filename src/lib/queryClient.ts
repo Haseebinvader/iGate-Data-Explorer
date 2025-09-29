@@ -1,27 +1,52 @@
 import { QueryClient, type DefaultOptions } from '@tanstack/react-query'
 
-// Define default options for React Query
+// ----------------------------------------------------
+// Default React Query options
+// ----------------------------------------------------
+// These control how queries behave globally across the app.
+// You can override them per-query if needed.
 const defaultOptions: DefaultOptions = {
   queries: {
-    // Retry failed queries up to 3 times before giving up
+    // --------------------------------
+    // Retry strategy
+    // --------------------------------
+    // Retry failed queries up to 3 times before giving up.
+    // After the 3rd failure, the error will surface to the UI.
     retry: (failureCount) => {
       if (failureCount >= 3) return false
       return true
     },
-    // Time (in ms) that data is considered fresh before being marked stale
-    staleTime: 30_000, //30 seconds
-    // Time (in ms) inactive cache data stays in memory before being garbage collected
-    gcTime: 5 * 60_000, //5 minutes
-    // Refetch data when the window regains focus
+
+    // --------------------------------
+    // Caching / Stale settings
+    // --------------------------------
+    // Time (ms) before fetched data is considered "stale"
+    // Stale data can still be used from cache while background refetch occurs
+    staleTime: 30_000, // 30 seconds
+
+    // Time (ms) inactive cache data stays in memory before garbage collection
+    gcTime: 5 * 60_000, // 5 minutes
+
+    // --------------------------------
+    // Refetch behavior
+    // --------------------------------
+    // Automatically refetch when the window regains focus (e.g., user tabs back)
     refetchOnWindowFocus: true,
-    // Refetch data when the network reconnects
+
+    // Automatically refetch when the browser reconnects after going offline
     refetchOnReconnect: true,
-    // Do not refetch data on component mount if data is fresh
+
+    // Do not refetch on component mount if cached data is still "fresh"
     refetchOnMount: false,
-    // Do not refetch data in the background when it becomes stale
+
+    // Disable automatic background polling (can be set per-query if needed)
     refetchInterval: false,
   },
 }
 
-//QueryClient instance with the above default options
+// ----------------------------------------------------
+// QueryClient instance
+// ----------------------------------------------------
+// Provides React Query context with the above default options.
+// This is usually passed to <QueryClientProvider>.
 export const queryClient = new QueryClient({ defaultOptions })

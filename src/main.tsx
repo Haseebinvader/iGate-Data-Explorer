@@ -3,28 +3,43 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
-// Redux store provider
+// ---------------------------------------------
+// Redux Store Provider
+// ---------------------------------------------
 import { Provider } from 'react-redux'
 import { store } from './store/index.ts'
 
-// Apply dark/light theme to <html> element
+// ---------------------------------------------
+// Theme (light/dark) utilities
+// ---------------------------------------------
 import { applyDocumentTheme } from './store/slices/themeSlice.ts'
 
-// React Query setup
+// ---------------------------------------------
+// React Query (server state management)
+// ---------------------------------------------
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient.ts'
 
-// Error handling + notifications
+// ---------------------------------------------
+// Error handling + Toast notifications
+// ---------------------------------------------
 import { ErrorBoundary } from './components/ErrorBoundary.tsx'
 import { Toaster } from './components/Toaster.tsx'
 
-// Routing
+// ---------------------------------------------
+// Routing (React Router v6)
+// ---------------------------------------------
 import { BrowserRouter } from 'react-router-dom'
 
+// ---------------------------------------------
+// RootProviders Component
+// ---------------------------------------------
+// Wraps App in all global providers (Redux, QueryClient, Router, etc.)
+// and handles theme initialization.
 function RootProviders() {
   useEffect(() => {
-    // Ensure theme (light/dark) is applied to the <html> element
-    // when the app first mounts, based on Redux state
+    // Ensure correct theme (light/dark) is applied to <html>
+    // when app mounts — prevents flash of wrong theme (FOUC).
     const mode = store.getState().theme.mode
     applyDocumentTheme(mode)
   }, [])
@@ -36,12 +51,12 @@ function RootProviders() {
         <ErrorBoundary>
           {/* Suspense handles lazy-loaded components */}
           <Suspense fallback={<div className="p-6">Loading...</div>}>
-            {/* React Router (v6) handles app routing */}
+            {/* BrowserRouter provides routing context */}
             <BrowserRouter>
               <App />
             </BrowserRouter>
 
-            {/* Toast notification system */}
+            {/* Toast notification system (global) */}
             <Toaster />
           </Suspense>
         </ErrorBoundary>
@@ -50,10 +65,12 @@ function RootProviders() {
   )
 }
 
-// Create root and render React app into #root (in index.html)
+
+// ---------------------------------------------
+// Create root and render React app into #root (index.html).
+// StrictMode helps detect potential problems in development.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <RootProviders />
   </StrictMode>,
 )
-// StrictMode helps identify potential problems in an application
