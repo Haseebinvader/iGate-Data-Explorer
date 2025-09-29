@@ -4,7 +4,6 @@ import { QueryClient, type DefaultOptions } from '@tanstack/react-query'
 // Default React Query options
 // ----------------------------------------------------
 // These control how queries behave globally across the app.
-// You can override them per-query if needed.
 const defaultOptions: DefaultOptions = {
   queries: {
     // --------------------------------

@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
  *
  * Example:
  * const isOnline = useOnlineStatus()
- * return <p>{isOnline ? "✅ Online" : "❌ Offline"}</p>
+ * return <p>{isOnline ? "Online" : "Offline"}</p>
  */
 export function useOnlineStatus() {
   // --------------------------------

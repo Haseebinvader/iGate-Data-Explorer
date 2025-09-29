@@ -4,7 +4,7 @@ import localforage from 'localforage'
 // LocalForage Configuration
 // ----------------------------------------------------
 // LocalForage is a wrapper around IndexedDB (with fallbacks
-// to WebSQL and localStorage) that provides async storage.
+// localStorage) that provides async storage.
 //
 // - `name`: database namespace (like a project DB name)
 // - `storeName`: object store (like a table in IndexedDB)
@@ -34,7 +34,7 @@ export async function getCached<T>(key: string): Promise<T | null> {
     // Explicitly coerce undefined → null
     return value ?? null
   } catch {
-    // If retrieval fails (corrupt DB, quota errors, etc.)
+    // If retrieval fails (e.g., corrupted data)
     // Return null safely (fail silently)
     return null
   }
