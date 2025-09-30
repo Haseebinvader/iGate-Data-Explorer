@@ -7,11 +7,11 @@ import { DataTableExplorer } from './DataTableExplorer'
 const Stats = lazy(() => import('../pages/Stats'))
 const AnalysisWizard = lazy(() => import('../pages/AnalysisWizard'))
 
-const AppRoutes = ({ data }: RoutesProps) => {
+const AppRoutes = ({ data, isLoading }: RoutesProps) => {
     return (
         <Suspense fallback={<div className="p-6">Loading page...</div>}>
             <Routes>
-                <Route path="/" element={<DataTableExplorer rows={data ?? []} />} />
+                <Route path="/" element={<DataTableExplorer rows={data ?? []} isLoading={isLoading} />} /> 
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/wizard" element={<AnalysisWizard />} />
             </Routes>

@@ -30,6 +30,7 @@ import { Toaster } from './components/Toaster.tsx'
 // Routing (React Router v6)
 // ---------------------------------------------
 import { BrowserRouter } from 'react-router-dom'
+import Loader from './components/Loader.tsx'
 
 // ---------------------------------------------
 // RootProviders Component
@@ -48,9 +49,24 @@ function RootProviders() {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         {/* ErrorBoundary catches runtime errors and shows fallback UI */}
-        <ErrorBoundary>
+        <ErrorBoundary
+          fallback={
+            <div className="p-6 text-center">
+              <h2 className="text-xl font-semibold">Something went wrong!</h2>
+              <p>Please try again later.</p>
+            </div>
+          }
+          onError={(error, errorInfo) => {
+            // You can add logging or additional actions here, such as reporting errors to a logging service
+            console.error('Caught error:', error, errorInfo)
+          }}
+          onRetry={() => {
+            // Optionally, trigger a retry function or action if needed
+            console.log('Retrying...')
+          }}
+        >
           {/* Suspense handles lazy-loaded components */}
-          <Suspense fallback={<div className="p-6">Loading...</div>}>
+          <Suspense fallback={<Loader/>}>
             {/* BrowserRouter provides routing context */}
             <BrowserRouter>
               <App />
@@ -64,7 +80,6 @@ function RootProviders() {
     </Provider>
   )
 }
-
 
 // ---------------------------------------------
 // Create root and render React app into #root (index.html).

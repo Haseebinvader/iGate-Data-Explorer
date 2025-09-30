@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDebounce } from './useDebounce'
 import { type RecordItem } from './useDataset'
 
@@ -79,7 +79,7 @@ export function useRecordFilters(rows: RecordItem[]) {
   // Sorting Handler
   // --------------------------------
   // Called when a column header is clicked
-  const onSort = (key: RecordSortKey) => {
+  const onSort = useCallback((key: RecordSortKey) => {
     if (key === sortKey) {
       // If already sorting by this key → toggle direction
       setSortDir(prevDir => (prevDir === 'asc' ? 'desc' : 'asc'))
@@ -88,7 +88,7 @@ export function useRecordFilters(rows: RecordItem[]) {
       setSortKey(key)
       setSortDir('asc')
     }
-  }
+  }, [sortKey, sortDir])
 
   // --------------------------------
   // Return Hook API

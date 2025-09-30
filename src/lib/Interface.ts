@@ -36,6 +36,8 @@ export interface DataTablePaginationProps {
 
 export interface RoutesProps {
   data: RecordItem[]
+  isLoading: boolean
+
 }
 
 export type SortKey = RecordSortKey

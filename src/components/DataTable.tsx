@@ -19,6 +19,7 @@ interface DataTableTableProps {
   viewportHeight: number                               // Visible viewport height
   setViewportHeight: (n: number) => void               // Setter for viewport height
   filteredLength: number                               // Number of rows after filtering
+  isLoading: boolean                                   // Loading state to show spinner
 }
 
 export function DataTable({
@@ -35,6 +36,7 @@ export function DataTable({
   viewportHeight,
   setViewportHeight,
   filteredLength,
+  isLoading,
 }: DataTableTableProps) {
   /**
    * ------------------------------
@@ -57,13 +59,13 @@ export function DataTable({
    * and updates viewportHeight accordingly (for responsive layouts).
    */
   useEffect(() => {
-    const el = viewportRef.current
-    if (!el) return
-    const ro = new ResizeObserver(() => setViewportHeight(el.clientHeight))
-    ro.observe(el)
+    const el = viewportRef.current // get current DOM element
+    if (!el) return               // safety check
+    const ro = new ResizeObserver(() => setViewportHeight(el.clientHeight)) // create observer
+    ro.observe(el) // start observing
     setViewportHeight(el.clientHeight) // initialize on mount
-    return () => ro.disconnect()
-  }, [viewportRef, setViewportHeight])
+    return () => ro.disconnect() // cleanup on unmount
+  }, [viewportRef, setViewportHeight]) // run once on mount
 
   /**
    * ------------------------------
@@ -72,7 +74,7 @@ export function DataTable({
    * Updates scrollTop state on scroll, which is used for virtualization.
    */
   const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollTop(e.currentTarget.scrollTop)
+    setScrollTop(e.currentTarget.scrollTop) // update scrollTop state
   }
 
   /**
@@ -85,22 +87,22 @@ export function DataTable({
 
   // Start dragging: store column key in ref and dataTransfer
   const handleDragStart = (key: SortKey) => (e: React.DragEvent) => {
-    dragCol.current = key
-    e.dataTransfer.setData('text/plain', key)
-    e.dataTransfer.effectAllowed = 'move'
+    dragCol.current = key // store in ref
+    e.dataTransfer.setData('text/plain', key) // for compatibility
+    e.dataTransfer.effectAllowed = 'move' // show move cursor
   }
 
   // Allow drag over only if not the "image" column
   const handleDragOver = (key: SortKey | 'image') => (e: React.DragEvent) => {
     if (key === 'image') return // cannot drop on "image" column
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
+    e.preventDefault() // allow drop
+    e.dataTransfer.dropEffect = 'move' // show move cursor
   }
 
   // Handle drop: update columnOrder state with new position
   const handleDrop = (key: SortKey) => (e: React.DragEvent) => {
-    e.preventDefault()
-    const from = dragCol.current
+    e.preventDefault() // prevent default handling
+    const from = dragCol.current // get dragged column
     if (!from || from === key) return // ignore invalid or same column
     setColumnOrder(prev => {
       const cols = prev.filter(c => c !== from) // remove dragged column
@@ -108,16 +110,15 @@ export function DataTable({
       cols.splice(idx, 0, from)                 // insert dragged col before target
       return cols
     })
-    dragCol.current = null
+    dragCol.current = null // reset ref
   }
-
 
   return (
     <div
       ref={viewportRef}
       onScroll={onScroll}
-      style={{ maxHeight: 480 }} // fixed viewport max height
-      className="overflow-auto border rounded"
+      style={{ maxHeight: 480, scrollBehavior: 'smooth' }} // fixed viewport max height
+      className="overflow-x-auto border rounded"
     >
       <table className="min-w-full border-collapse">
         {/* -------- Table Header -------- */}
@@ -141,7 +142,7 @@ export function DataTable({
                   key={col}
                   className="p-4 text-left cursor-pointer select-none relative group hover:bg-gray-200 dark:hover:bg-gray-700 border-b border-gray-300 dark:border-gray-700"
                   onClick={() => onSort(col)}                  // sort when clicked
-                  draggable                                     // make draggable
+                  draggable    
                   onDragStart={handleDragStart(col)}
                   onDragOver={handleDragOver(col)}
                   onDrop={handleDrop(col)}
@@ -163,31 +164,29 @@ export function DataTable({
 
         {/* -------- Table Body -------- */}
         <tbody>
-          {/* Case: No results */}
-          {filteredLength === 0 && (
+          {isLoading ? (
             <tr>
-              <td colSpan={columnOrder.length} className="p-4 text-center text-sm">
-                No results found.
+              <td colSpan={columnOrder.length} className="p-4 text-center">
+                <div className="animate-pulse space-y-2">
+                  {/* Skeleton loading items */}
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
+                </div>
               </td>
             </tr>
-          )}
-
-          {/* Case: Results available */}
-          {filteredLength > 0 && (
-            <>
-              {/* Top spacer row (virtualization) */}
-              {offsetY > 0 && (
-                <tr style={{ height: offsetY }}>
-                  <td colSpan={columnOrder.length} style={{ padding: 0, border: "none" }} />
-                </tr>
-              )}
-
-              {/* Actual visible rows */}
-              {visibleRows.map(row => (
-                <tr key={row.id} style={{ height: rowHeight }}>
+          ) : (
+            filteredLength === 0 ? (
+              <tr>
+                <td colSpan={columnOrder.length} className="p-4 text-center text-sm">
+                  No results found.
+                </td>
+              </tr>
+            ) : (
+              pageRows.map(row => (
+                <tr key={row.id} style={{ height: rowHeight }} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                   {columnOrder.map(col => {
                     if (col === 'image') {
-                      // Special image column with thumbnail
                       return (
                         <td
                           key="image"
@@ -203,21 +202,13 @@ export function DataTable({
                             className="rounded"
                           />
                         </td>
-                      )
+                      );
                     }
-                    // Normal text cells
-                    return <td key={col} className="px-2">{String(row[col])}</td>
+                    return <td key={col} className="px-2">{String(row[col])}</td>;
                   })}
                 </tr>
-              ))}
-
-              {/* Bottom spacer row (virtualization) */}
-              {totalHeight - offsetY - visibleRows.length * rowHeight > 0 && (
-                <tr style={{ height: totalHeight - offsetY - visibleRows.length * rowHeight }}>
-                  <td colSpan={columnOrder.length} style={{ padding: 0, border: "none" }} />
-                </tr>
-              )}
-            </>
+              ))
+            )
           )}
         </tbody>
       </table>

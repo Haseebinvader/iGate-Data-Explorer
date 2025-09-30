@@ -22,13 +22,6 @@ export class ErrorBoundary extends React.Component<
   React.PropsWithChildren<ErrorBoundaryProps>, // Accepts children + custom props
   ErrorBoundaryState // Manages internal error state
 > {
-  /**
-   * ------------------------------
-   * State Initialization
-   * ------------------------------
-   * - hasError: tracks if an error occurred
-   * - error: stores the actual error object
-   */
   state: ErrorBoundaryState = { hasError: false, error: null }
 
   /**
@@ -36,9 +29,7 @@ export class ErrorBoundary extends React.Component<
    * getDerivedStateFromError
    * ------------------------------
    * React lifecycle method triggered when a child throws an error.
-   *
-   * - Updates state so `render` knows to show fallback UI
-   * - This is static: cannot access instance (`this`)
+   * Updates the state so `render` knows to show fallback UI
    */
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error }
@@ -49,18 +40,12 @@ export class ErrorBoundary extends React.Component<
    * componentDidCatch
    * ------------------------------
    * Lifecycle method called after an error is thrown.
-   *
-   * Parameters:
-   * - error: the error object
-   * - errorInfo: extra React info (component stack trace, etc.)
-   *
-   * Responsibilities:
-   * - Log error details (e.g., console, monitoring tools like Sentry)
-   * - Call optional `onError` callback passed in props
+   * Logs error details and calls onError callback
    */
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error('ErrorBoundary caught error:', error, errorInfo)
 
+    // Log error to an external service if needed (e.g., Sentry, LogRocket)
     if (this.props.onError) {
       this.props.onError(error, errorInfo)
     }
@@ -70,30 +55,21 @@ export class ErrorBoundary extends React.Component<
    * ------------------------------
    * handleRetry
    * ------------------------------
-   * Resets the error state to allow re-rendering of children.
+   * Resets error state and allows re-rendering of children.
    * Useful when retrying after fixing transient errors.
-   *
-   * - Resets `hasError` to false
-   * - Clears stored error
-   * - Calls optional `onRetry` callback
    */
   handleRetry = () => {
     this.setState({ hasError: false, error: null })
-    this.props.onRetry?.()
+    if (this.props.onRetry) {
+      this.props.onRetry()
+    }
   }
 
   /**
    * ------------------------------
    * render
    * ------------------------------
-   * Determines what to render depending on error state:
-   *
-   * 1. If error occurred:
-   *    - Use custom `fallback` if provided
-   *    - Otherwise, show default fallback with Retry button
-   *
-   * 2. If no error:
-   *    - Render children normally
+   * Renders either the fallback UI or children depending on error state
    */
   render(): React.ReactNode {
     if (this.state.hasError) {

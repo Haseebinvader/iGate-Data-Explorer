@@ -6,10 +6,11 @@ import { DataTablePagination } from './DataTablePagination'
 import { DataTableResourceWarning } from './DataTableResourceWarning'
 import { DataTableFilters } from './DataTableFilters'
 import { DataTable } from './DataTable'
+import { exportCSV, exportJSON } from '../lib/exports' // Assuming the export functions are imported
 
 type SortKey = RecordSortKey
 
-export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
+export function DataTableExplorer({ rows, isLoading }: { rows: RecordItem[], isLoading: boolean }) {
   // Filtering + sorting state and utilities (custom hook)
   const {
     query,
@@ -33,10 +34,11 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
   const [page, setPage] = useState<number>(1)
 
   // Virtualization config
-  const rowHeight = 50;
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(400);
+  const rowHeight = 50
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const [scrollTop, setScrollTop] = useState(0)
+  const [viewportHeight, setViewportHeight] = useState(400)
+
   // Track resource usage (memory warning, etc.)
   const tracker = useResourceTracker('DataTable', filtered.length)
 
@@ -53,6 +55,7 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
 
   return (
     <div className="space-y-3">
+      {/* Filters and other controls */}
       <DataTableFilters
         query={query}
         setQuery={setQuery}
@@ -62,6 +65,7 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
         resultCount={filtered.length}
       />
 
+      {/* Pagination */}
       <DataTablePagination
         page={page}
         setPage={setPage}
@@ -70,6 +74,7 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
         totalPages={totalPages}
       />
 
+      {/* Resource Warning */}
       <DataTableResourceWarning
         tracker={{
           ...tracker,
@@ -77,6 +82,8 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
           memoryMB: tracker.memoryMB ?? undefined,
         }}
       />
+
+      {/* Data Table */}
       <DataTable
         columnOrder={columnOrder}
         setColumnOrder={setColumnOrder}
@@ -91,7 +98,26 @@ export function DataTableExplorer({ rows }: { rows: RecordItem[] }) {
         viewportHeight={viewportHeight}
         setViewportHeight={setViewportHeight}
         filteredLength={filtered.length}
+        isLoading={isLoading} 
+
       />
+
+      {/* Export buttons */}
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          className="px-3 py-1.5 rounded border"
+          onClick={() => exportCSV(filtered, 'filtered.csv')} // Export only filtered data
+        >
+          Export CSV
+        </button>
+
+        <button
+          className="px-3 py-1.5 rounded border"
+          onClick={() => exportJSON(filtered, 'filtered.json')} // Export only filtered data
+        >
+          Export JSON
+        </button>
+      </div>
     </div>
   )
 }

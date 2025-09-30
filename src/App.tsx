@@ -7,14 +7,14 @@ import AppRoutes from './components/Routes'
 
 function App() {
   const mode = useAppSelector(s => s.theme.mode)
-  const { data } = useDataset()
+  const { data, isLoading } = useDataset()
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <OfflineBanner />
-      <Header data={data || []} mode={mode} />
+      <Header data={data || []}  mode={mode} />
       <main className="p-4 space-y-3">
-        <AppRoutes data={data || []} />
+        <AppRoutes data={data || []} isLoading={isLoading} />
       </main>
       <BackToTop />
     </div>

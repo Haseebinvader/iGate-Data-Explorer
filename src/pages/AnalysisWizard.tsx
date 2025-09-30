@@ -2,13 +2,18 @@ import { useSearchParams } from 'react-router-dom'
 import { useDataset } from '../hooks/useDataset'
 import ReactECharts from 'echarts-for-react'
 import { useRecordFilters } from '../hooks/useRecordFilters'
+import { useEffect } from 'react'
+import { toast } from 'react-hot-toast'  // Import the toast function
 
 export default function AnalysisWizard() {
-  // Manage URL query params (used to persist wizard step & filters)
   const [params, setParams] = useSearchParams()
 
   // Current wizard step (default 1)
   const step = Number(params.get('step') || 1)
+
+  // Read filters from URL params
+  const queryParam = params.get('searchedQuery') || ''
+  const categoryParam = params.get('category') || ''
 
   // Helper to update the "step" param in URL
   const setStep = (n: number) =>
@@ -28,9 +33,42 @@ export default function AnalysisWizard() {
     categories, filtered,
   } = useRecordFilters(data ?? [])
 
+  // Sync the query and category from URL params
+  useEffect(() => {
+    setQuery(queryParam)
+    setCategory(categoryParam)
+  }, [queryParam, categoryParam, setQuery, setCategory])
+
   // Step navigation handlers
-  const next = () => setStep(Math.min(3, step + 1)) // max step = 3
+ const next = () => {
+    // Show toast when moving to the next step
+     toast.success(`Filters wizard applied successfully!`, {
+    position: "bottom-right", // Position of the toast
+    duration: 3000, // Automatically close after 3 seconds
+    style: {
+      background: '#4caf50',
+      color: '#fff',
+      fontWeight: 'bold',
+      borderRadius: '8px',
+      padding: '12px',
+    },
+  });
+    setStep(Math.min(3, step + 1)) // max step = 3
+  }
   const prev = () => setStep(Math.max(1, step - 1)) // min step = 1
+
+  // Apply the filters when navigating to Step 2
+  useEffect(() => {
+    if (step === 1) {
+      // Update URL params with the current query & category on Step 1
+      setParams(p => {
+        const np = new URLSearchParams(p)
+        np.set('searchedQuery', query)
+        np.set('category', category)
+        return np
+      })
+    }
+  }, [query, category, step, setParams])
 
   return (
     <div className="p-4 space-y-4">
@@ -76,8 +114,8 @@ export default function AnalysisWizard() {
               // Save query & category to URL params
               setParams(p => {
                 const np = new URLSearchParams(p)
-                np.set('q', query)
-                np.set('cat', category)
+                np.set('searchedQuery', query)
+                np.set('category', category)
                 return np
               })
               next()
