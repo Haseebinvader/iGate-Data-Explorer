@@ -7,6 +7,7 @@ import { DataTableResourceWarning } from './DataTableResourceWarning'
 import { DataTableFilters } from './DataTableFilters'
 import { DataTable } from './DataTable'
 import { exportCSV, exportJSON } from '../lib/exports' // Assuming the export functions are imported
+import { ErrorBoundary } from './ErrorBoundary'
 
 type SortKey = RecordSortKey
 
@@ -84,6 +85,22 @@ export function DataTableExplorer({ rows, isLoading }: { rows: RecordItem[], isL
       />
 
       {/* Data Table */}
+      <ErrorBoundary
+      fallback={
+        <div className="p-6 text-center">
+          <h2 className="text-xl font-semibold">Something went wrong!</h2>
+          <p>Please try again later.</p>
+        </div>
+      }
+      onError={(error, errorInfo) => {
+        // Log or report the error as needed
+        console.error('Error caught in DataTable:', error, errorInfo)
+      }}
+      onRetry={() => {
+        // Optionally trigger a retry if necessary
+        console.log('Retrying DataTable render...')
+      }}
+    >
       <DataTable
         columnOrder={columnOrder}
         setColumnOrder={setColumnOrder}
@@ -98,9 +115,9 @@ export function DataTableExplorer({ rows, isLoading }: { rows: RecordItem[], isL
         viewportHeight={viewportHeight}
         setViewportHeight={setViewportHeight}
         filteredLength={filtered.length}
-        isLoading={isLoading} 
-
+        isLoading={isLoading}
       />
+    </ErrorBoundary>
 
       {/* Export buttons */}
       <div className="flex justify-end gap-2 mt-4">

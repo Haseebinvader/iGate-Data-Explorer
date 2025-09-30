@@ -165,7 +165,7 @@ export function DataTable({
         {/* -------- Table Body -------- */}
         <tbody>
           {isLoading ? (
-            <tr>
+            <tr className='hover:bg-yellow-200 dark:hover:bg-gray-700'>
               <td colSpan={columnOrder.length} className="p-4 text-center">
                 <div className="animate-pulse space-y-2">
                   {/* Skeleton loading items */}
@@ -184,7 +184,7 @@ export function DataTable({
               </tr>
             ) : (
               pageRows.map(row => (
-                <tr key={row.id} style={{ height: rowHeight }} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                <tr key={row.id} style={{ height: rowHeight }} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   {columnOrder.map(col => {
                     if (col === 'image') {
                       return (
