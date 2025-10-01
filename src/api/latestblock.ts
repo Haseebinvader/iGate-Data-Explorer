@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelResponse } from "@vercel/node";
 
 // Shape of the Blockchain.info `/latestblock` response
 interface LatestBlockResponse {
@@ -10,7 +10,6 @@ interface LatestBlockResponse {
 }
 
 export default async function handler(
-  req: VercelRequest,
   res: VercelResponse
 ): Promise<void> {
   try {
