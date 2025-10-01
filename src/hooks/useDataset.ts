@@ -44,7 +44,7 @@ async function fetchDataset(): Promise<RecordItem[]> {
     return cached.data;
   }
 
-  const res = await fetch("/api/latestblock");
+  const res = await fetch("https://blockchain.info/api/latestblock");
   if (!res.ok) throw new Error("Failed to load dataset");
 
   const raw = await res.json();
