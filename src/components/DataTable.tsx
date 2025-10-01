@@ -117,7 +117,7 @@ export function DataTable({
     <div
       ref={viewportRef}
       onScroll={onScroll}
-      style={{ maxHeight: 480, scrollBehavior: 'smooth' }} // fixed viewport max height
+      style={{ maxHeight: 480, height: totalHeight,  scrollBehavior: 'smooth' }} // fixed viewport max height
       className="overflow-x-auto border rounded"
     >
       <table className="min-w-full border-collapse">
@@ -163,7 +163,7 @@ export function DataTable({
         </thead>
 
         {/* -------- Table Body -------- */}
-        <tbody>
+        <tbody style={{ transform: `translateY(${offsetY}px)` }}>
           {isLoading ? (
             <tr className='hover:bg-yellow-200 dark:hover:bg-gray-700'>
               <td colSpan={columnOrder.length} className="p-4 text-center">
@@ -183,7 +183,7 @@ export function DataTable({
                 </td>
               </tr>
             ) : (
-              pageRows.map(row => (
+              visibleRows.map(row => (
                 <tr key={row.id} style={{ height: rowHeight }} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   {columnOrder.map(col => {
                     if (col === 'image') {

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useAppDispatch } from '../store'
-import { exportCSV, exportJSON } from '../lib/exports'
 import { toggleTheme } from '../store/slices/themeSlice'
 import type { HeaderProps } from '../lib/Interface'
 
@@ -17,12 +16,8 @@ import type { HeaderProps } from '../lib/Interface'
  * - data: current filtered dataset (optional, used for export)
  * - mode: current theme mode ("light" | "dark")
  */
-const Header = ({ data, mode }: HeaderProps) => {
+const Header = ({ mode }: HeaderProps) => {
   const dispatch = useAppDispatch(); // Redux dispatch hook
-  
-  // Ensure that 'data' is the filtered dataset
-  const filteredData = data ?? []; // If 'data' is undefined or null, use an empty array
-  console.log("*D",data);
   
   
   return (
